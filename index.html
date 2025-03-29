@@ -101,7 +101,6 @@
       fetchingData = true;
       updateButtonState();
       const result = await fetch(`https://api.weatherapi.com/v1/current.json?key=e2772b188a704b8da1680322252903&q=${city}`)
-      console.log(result.status);
       if(result.status === 200){
         const weatherData = await result.json();
         showWeather(weatherData);
@@ -112,7 +111,14 @@
         const h1 = document.createElement('h1');
         h1.innerText = 'City not found';  
         error.appendChild(h1);
+        const clearButton = document.createElement('button');
+        clearButton.innerText = 'Clear';
+        clearButton.addEventListener('click', ()=>{
+        error.remove();
+        clearButton.remove();
+      })
         document.querySelector('body').appendChild(error);
+        document.querySelector('body').appendChild(clearButton);
       }else{
         alert('Something went wrong');
       }
