@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #87CEEB, #ffffff);
+      color: #333;
+      text-align: center;
+    }
+
+    #container {
+      margin: 50px auto;
+      padding: 20px;
+      max-width: 500px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: #555;
+    }
+
+    label {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    div {
+      margin-top: 20px;
+    }
+
+    div h1, div h2, div p {
+      margin: 10px 0;
+    }
+
+    div h1 {
+      font-size: 1.8rem;
+      color: #007BFF;
+    }
+
+    div h2 {
+      font-size: 1.2rem;
+      color: #555;
+    }
+
+    div p {
+      font-size: 1rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Weather App</h1>
+    <h2>Get the current weather of your city</h2>
+    <label for="city">Enter your city</label>
+    <input type="text" name="city" id="city" placeholder="Enter your City">
+    <button id="getWeather">Get Weather</button>  
+  </div>
+  <script>
+    let fetchingData = false;
+    const getWeather = async (city)=>{
+      fetchingData = true;
+      updateButtonState();
+      const result = await fetch(`http://api.weatherapi.com/v1/current.json?key=e2772b188a704b8da1680322252903&q=${city}`)
+      console.log(result.status);
+      if(result.status === 200){
+        const weatherData = await result.json();
+        showWeather(weatherData);
+      }else if(result.status === 400){
+        fetchingData = false;
+        updateButtonState();
+        const error = document.createElement('div');
+        const h1 = document.createElement('h1');
+        h1.innerText = 'City not found';  
+        error.appendChild(h1);
+        document.querySelector('body').appendChild(error);
+      }else{
+        alert('Something went wrong');
+      }
+    }
+    
+    const showWeather = (weatherData)=>{
+      fetchingData = false;
+      updateButtonState();
+      const weather = document.createElement('div');
+      const h1 = document.createElement('h1');
+      h1.innerText = `City: ${weatherData.location.name}`;
+      const h2 = document.createElement('h2');
+      h2.innerText = `Country : ${weatherData.location.country}`;
+      const p = document.createElement('p'); 
+      p.innerText = `
+      Temperature in Celusis : ${weatherData.current.temp_c}°C;
+      Temperature in Fahrenheit  : ${weatherData.current.temp_f}°F;
+      Weather Condition : ${weatherData.current.condition.text};`
+      weather.appendChild(h1);
+      weather.appendChild(h2);
+      weather.appendChild(p);
+      const clearButton = document.createElement('button');
+      clearButton.innerText = 'Clear';
+      clearButton.addEventListener('click', ()=>{
+        weather.remove();
+        clearButton.remove();
+      })
+      document.querySelector('body').appendChild(weather);
+      document.querySelector('body').appendChild(clearButton);
+    }
+    
+
+    const button = document.getElementById('getWeather');
+    
+    const updateButtonState = () => {
+    const button = document.getElementById('getWeather');
+    button.disabled = fetchingData;
+    };
+
+    button.addEventListener('click', ()=>{
+      const cityInput = document.getElementById('city');
+      const inputValue = cityInput.value;
+      const API_KEY = 'e2772b188a704b8da1680322252903';
+      getWeather(inputValue);
+      cityInput.value = '';
+    })
+  </script>
+</body>
+</html>
